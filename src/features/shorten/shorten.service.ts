@@ -12,9 +12,8 @@ export class ShortenService {
   async getLinks(dto: GetShortenDTO): Promise<Link[]> {
     switch (dto.sort) {
       case ShortenSortOrder.RECENTLY:
-        return this.getRecentlyShortened(dto.limit || 5);
+        return this.getRecentlyShortened(3);
       default:
-        console.log(typeof dto.limit)
         const data = await this.repo.getAll(dto.limit);
 
         return data.map((link) => ({
@@ -24,7 +23,6 @@ export class ShortenService {
   }
 
   async createLink(dto: CreateShortenDTO) {
-    console.log(dto)
     const newLink: Link = {
       id: createId(),
       url: dto.url,
@@ -33,7 +31,6 @@ export class ShortenService {
       createdAt: new Date(),
       updatedAt: new Date()
     }
-
     return this.repo.create(newLink)
   }
 
