@@ -1,26 +1,23 @@
 import { Request, Response } from "express";
 import { ShortenService } from "./shorten.service";
-import { ShortenResponseDTO } from "./dtos/shorten-response.dto";
 import { CreateShortenDTO } from "./dtos/create-shorten.dto";
-import { Link } from "../../generated/prisma/client";
+import { GetShortenDTO, getShortenSchema } from "./dtos/get-shorten.dto";
+import { ShortenResponseDTO } from "./dtos/shorten-response.dto";
 
 
 export class ShortenController {
   private shortenService = new ShortenService();
 
-  getLinks = async (req: Request, res: Response) => {
+  getLinks = async (req: Request<{}, {}, {}, GetShortenDTO>, res: Response) => {
     try {
-      const links = await this.shortenService.getLinks();
+      const params = getShortenSchema.safeParse(req.query);
 
-      const response: ShortenResponseDTO[] = links.map(link => ({
-        id: link.id,
-        shortCode: link.shortCode,
-        url: link.url,
-        accessCount: link.accessCount,
-        createdAt: link.createdAt,
-        updatedAt: link.updatedAt,
-      }))
-      return res.status(200).json(response);
+      if (!params.success) {
+        return res.status(400).json({ message: "Invalid query parameters", errors: params.error.issues });
+      }
+
+      const data: ShortenResponseDTO[] = await this.shortenService.getLinks(params.data);
+      return res.status(200).json(data);
 
     } catch (error) {
       console.log(error)
