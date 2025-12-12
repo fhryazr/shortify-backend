@@ -39,4 +39,22 @@ export class ShortenController {
     }
   }
 
+  updateLink = async (req: Request<{ id: string }, {}, CreateShortenDTO>, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { success, data, error } = createShortenSchema.safeParse(req.body);
+
+      if (!success) {
+        return res.status(400).json({ message: "Invalid request body", errors: error.issues });
+      }
+
+      const updatedLink: ShortenResponseDTO = await this.shortenService.updateLink(id, data);
+      console.log(updatedLink)
+      return res.status(200).json(updatedLink);
+    } catch (error) {
+      console.log(error)
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+
 }

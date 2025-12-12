@@ -7,5 +7,6 @@ const controller = new ShortenController();
 
 router.get("/", controller.getLinks)
 router.post("/", controller.createLink)
+router.patch("/:id", controller.updateLink)
 
 export default router;

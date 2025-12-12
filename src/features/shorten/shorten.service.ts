@@ -1,5 +1,4 @@
 import { Link } from "../../generated/prisma/client";
-import { prisma } from "../../lib/prisma";
 import { CreateShortenDTO } from "./dtos/create-shorten.dto";
 import { nanoid } from "nanoid";
 import { ShortenRepository } from "./shorten.repository";
@@ -10,19 +9,28 @@ export class ShortenService {
   private repo = new ShortenRepository();
 
   async getLinks(dto: GetShortenDTO): Promise<Link[]> {
-    switch (dto.sort) {
-      case ShortenSortOrder.RECENTLY:
-        return this.getRecentlyShortened(3);
-      default:
-        const data = await this.repo.getAll(dto.limit);
+    const { search, sort, limit } = dto;
 
-        return data.map((link) => ({
-          ...link,
-        }));
+    let orderBy: { [key: string]: 'asc' | 'desc' } | undefined;
+
+    switch (sort) {
+      case ShortenSortOrder.RECENTLY:
+        orderBy = { createdAt: 'desc' };
+        break;
+
+      case ShortenSortOrder.MOST_CLICKS:
+        orderBy = { accessCount: 'desc' };
+        break;
     }
+
+    return await this.repo.getAll({
+      search,
+      limit,
+      orderBy
+    });
   }
 
-  async createLink(dto: CreateShortenDTO) {
+  async createLink(dto: CreateShortenDTO): Promise<Link> {
     const newLink: Link = {
       id: createId(),
       url: dto.url,
@@ -34,12 +42,8 @@ export class ShortenService {
     return this.repo.create(newLink)
   }
 
-  private async getRecentlyShortened(limit: number) {
-    const data: Link[] = await this.repo.getAll(limit);
-
-    return data.map((link) => ({
-      ...link,
-    }))
+  async updateLink(id: string, data: CreateShortenDTO): Promise<Link> {
+    return this.repo.update(id, data);
   }
 
   private generateShortCode(): string {
