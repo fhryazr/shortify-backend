@@ -8,11 +8,12 @@ type GetAllParams = {
 }
 
 export class ShortenRepository {
-  async getAll({ limit, search, orderBy }: GetAllParams): Promise<Link[]> {
+  async getAll({ limit, search, orderBy }: GetAllParams, userId?: string): Promise<Link[]> {
     const links = await prisma.link.findMany({
       take: limit,
       select: {
         id: true,
+        userId: true,
         url: true,
         shortCode: true,
         accessCount: true,
@@ -20,7 +21,8 @@ export class ShortenRepository {
         updatedAt: true,
       },
       where: search ? {
-        url: { contains: search }
+        url: { contains: search },
+        userId: userId
       } : undefined,
       orderBy: orderBy ?? { updatedAt: 'desc' },
     });

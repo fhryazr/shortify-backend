@@ -10,6 +10,8 @@ export class ShortenService {
 
   async getLinks(dto: GetShortenDTO): Promise<Link[]> {
     const { search, sort, limit } = dto;
+    const userId = "BVQ2sPBFCNwIEcm3Di6XsdKCr1A7ZtGzBVQ2sPBFCNwIEcm3Di6XsdKCr1A7ZtGz"
+    console.log(typeof userId);
 
     let orderBy: { [key: string]: 'asc' | 'desc' } | undefined;
 
@@ -27,12 +29,13 @@ export class ShortenService {
       search,
       limit,
       orderBy
-    });
+    }, userId);
   }
 
   async createLink(dto: CreateShortenDTO): Promise<Link> {
     const newLink: Link = {
       id: createId(),
+      userId: dto.userId,
       url: dto.url,
       shortCode: this.generateShortCode(),
       accessCount: 0,
