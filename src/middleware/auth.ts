@@ -20,7 +20,6 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  console.log("Authenticated user:", session.user.name);
   req.user = session.user;
   next();
 };
